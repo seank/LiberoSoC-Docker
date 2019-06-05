@@ -1,0 +1,35 @@
+#!/bin/bash
+
+set -e
+
+cd $(dirname $0)
+
+DOCKER_TARGET=${DOCKER_TARGET:-docker}
+IMAGE_NAME=liberosoc
+IMAGE_TAG=11.9SP3
+
+# Test LiberoSoC Install dir
+#if [ !  -f ${LIBERO_INSTALL_DIR}/Libero_v11.9/Libero/bin/libero ]
+#then
+#  echo "LIBERO_INSTALL_DIR does not appear to be set correctly, exiting."
+#  exit
+#fi
+
+# start small webserver to hold install files
+pushd libero-installer
+#pushd ${LIBERO_INSTALL_DIR}
+python3 -m http.server 8765 --bind 127.0.0.1 >/dev/null 2>&1 &
+HTTP_SERVER_PID=$!
+trap "echo 'stopping $HTTP_SERVER_PID' ; if [ $HTTP_SERVER_PID ] ; then kill $HTTP_SERVER_PID ; fi" SIGINT SIGTERM EXIT
+popd
+#cd ..
+
+docker build --network host --rm -t ${DOCKER_TARGET}/${IMAGE_NAME}:${IMAGE_TAG} .
+docker tag ${DOCKER_TARGET}/${IMAGE_NAME}:${IMAGE_TAG} ${DOCKER_TARGET}/${IMAGE_NAME}:latest
+
+read -n1 -p "Do you want to push the image to the registry now [yN]? " answer
+if [[ "${answer:-n}" == "y" ]]
+then
+    docker push ${DOCKER_TARGET}/${IMAGE_NAME}:${IMAGE_TAG}
+    docker push ${DOCKER_TARGET}/${IMAGE_NAME}:latest
+fi

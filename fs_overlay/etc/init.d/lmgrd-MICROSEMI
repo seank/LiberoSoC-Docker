@@ -1,0 +1,109 @@
+#!/bin/bash
+#
+# chkconfig: 2345 90 10
+# description: FLEXlm license manager generic startup script
+# processname: lmgrd
+# Edit as appropriate...
+
+PROGNAME=lmgrd-MICROSEMI
+LICENSE=/var/local/microsemi/license.dat
+LMDIR=/usr/local/microsemi/Libero_SoC_v11.9/Libero/bin/
+LMUSER=root
+
+# You shouldn't have to edit below here
+
+. /etc/rc.d/init.d/functions
+
+LOCK=/var/lock/subsys/$PROGNAME
+LOG=/var/tmp/$PROGNAME.log
+
+checklog()
+{
+        [ -f $LOG ] || /bin/touch $LOG
+        /bin/chown $LMUSER $LOG
+}
+
+start()
+{
+        echo -n $"Starting $PROGNAME: "
+        if [ "$LICENSE" != "" ] ; then
+                checklog
+                daemon --user=$LMUSER $LMDIR/lmgrd \
+                        -c $LICENSE \
+                        -l $LOG \
+                        && /bin/touch $LOCK \
+                        && success || failure
+                RETVAL=$?
+        else
+                echo -n "no license file" && failure
+        fi
+        echo
+        return $RETVAL
+}
+
+stop()
+{
+        echo -n $"Stopping $PROGNAME: "
+        if [ "$LICENSE" != "" ] ; then
+                checklog
+                echo y | $LMDIR/lmutil lmdown \
+                        -c $LICENSE \
+                        >> $LOG \
+                        && /bin/rm -f $LOCK \
+                        && success || failure
+                RETVAL=$?
+        else
+                echo -n "no license file" && failure
+        fi
+        echo
+        return $RETVAL
+}
+
+case "$1" in
+
+   start)
+      start
+      ;;
+
+   stop)
+      stop
+      ;;
+
+   restart)
+      stop
+      echo "Waiting for port cycle (10 seconds)"
+      sleep 10
+      start
+      ;;
+
+   condrestart)
+      if [ -f $LOCK ]; then
+
+         stop
+         start
+
+      fi
+      ;;
+
+   status)
+      [ ! -f $LOCK ] && echo "$PROGNAME is not running" && exit 0
+
+      if [ "$LICENSE" != "" ]; then
+
+         $LMDIR/lmutil lmstat -a -c $LICENSE
+         RETVAL=$?
+
+      else
+
+         echo "no license file"
+
+      fi
+      ;;
+
+   *)
+      echo $"Usage: $prog {start|stop|restart|condrestart|status}"
+      exit 1
+
+esac
+
+exit $RETVAL
