@@ -6,7 +6,7 @@ cd $(dirname $0)
 
 DOCKER_TARGET=${DOCKER_TARGET:-docker}
 IMAGE_NAME=liberosoc
-IMAGE_TAG=11.9SP3
+IMAGE_TAG=11.9SP4
 
 # Test LiberoSoC Install dir
 #if [ !  -f ${LIBERO_INSTALL_DIR}/Libero_v11.9/Libero/bin/libero ]

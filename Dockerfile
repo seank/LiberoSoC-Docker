@@ -7,6 +7,9 @@ LABEL remarks ”This is a dockerfile for LiberoSoC”
 RUN yum update -y && \
     yum install -y wget \
     firefox \
+    net-tools \
+    xauth \
+    xeyes \
     atk-2.28.1-1.el7.i686 \ 
     cairo-1.15.12-3.el7.i686 \ 
     glibc-2.17-260.el7_6.5.i686 \ 
@@ -51,15 +54,15 @@ RUN yum update -y && \
 # Add overlay files to local fs (copied as context, but not mounted anywhere)
 COPY fs_overlay /
 
-# Install Libero 11.9 and apply SP3
+# Install Libero 11.9 and apply SP4
 RUN cd /tmp && wget "http://127.0.0.1:8765/Libero_SoC_v11.9_Linux.bin" && \
     chmod +x Libero_SoC_v11.9_Linux.bin && \
     TERM=xterm ./Libero_SoC_v11.9_Linux.bin -i silent && \
     rm Libero_SoC_v11.9_Linux.bin && \
     cd /usr/local/microsemi/Libero_SoC_v11.9/Libero && \
-    wget "http://127.0.0.1:8765/Libero_SoC_v11_9_SP3_Lin.tar.gz" && \
-    tar -xf Libero_SoC_v11_9_SP3_Lin.tar.gz && \
-    rm Libero_SoC_v11_9_SP3_Lin.tar.gz && \
-    ./wsupdate.sh
+    wget "http://127.0.0.1:8765/Libero_SoC_v11_9_SP4_Lin.tar.gz" && \
+    tar -xf Libero_SoC_v11_9_SP4_Lin.tar.gz && \
+    rm Libero_SoC_v11_9_SP4_Lin.tar.gz && \
+    yes y | ./wsupdate.sh
 
 RUN chkconfig --add lmgrd-MICROSEMI
