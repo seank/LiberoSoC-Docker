@@ -10,6 +10,12 @@ RUN yum update -y && \
     net-tools \
     xauth \
     xeyes \
+    which \
+    nano \
+    motif \
+    motif-devel \
+    ncurses-libs.i686 \
+    xorg-x11-server-Xvfb \
     atk-2.28.1-1.el7.i686 \ 
     cairo-1.15.12-3.el7.i686 \ 
     glibc-2.17-260.el7_6.5.i686 \ 
@@ -18,7 +24,6 @@ RUN yum update -y && \
     ibgcc-4.8.5-36.el7_6.2.i686 \
     gdk-pixbuf2-2.36.12-3.el7.i686 \ 
     gtk2-2.24.31-1.el7.i686 \
-    glib2-2.56.1-2.el7.i686 \
     libICE-1.0.9-9.el7.i686 \
     pango-1.42.4-2.el7_6.i686 \
     libpng12-1.2.50-10.el7.i686 \
@@ -65,4 +70,8 @@ RUN cd /tmp && wget "http://127.0.0.1:8765/Libero_SoC_v11.9_Linux.bin" && \
     rm Libero_SoC_v11_9_SP4_Lin.tar.gz && \
     yes y | ./wsupdate.sh
 
-RUN chkconfig --add lmgrd-MICROSEMI
+# Fix misc ELF errors, by adding symlinks.
+RUN ln -f -s /lib/ld-linux.so.2 /lib/ld-lsb.so.3
+RUN ln -f -s /usr/lib64/libXm.so.4 /usr/lib/libXm.so.4
+RUN ln -f -s /usr/lib/libXm.so.4 /usr/lib/libXm.so.3
+
