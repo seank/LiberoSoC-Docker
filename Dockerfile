@@ -13,35 +13,41 @@ RUN yum update -y && \
     which \
     nano \
     motif \
+    libgcc.i686 \
+    libstdc++-devel.i686 \
+    ncurses-devel.i686 \
     motif-devel \
+    psmisc \
+    mlocate \
+    usbutils \
     ncurses-libs.i686 \
     xorg-x11-server-Xvfb \
-    atk-2.28.1-1.el7.i686 \ 
-    cairo-1.15.12-3.el7.i686 \ 
-    glibc-2.17-260.el7_6.5.i686 \ 
-    fontconfig-2.13.0-4.3.el7.i686 \
+    atk.i686 \ 
+    cairo.i686 \ 
+    glibc.i686 \ 
+    fontconfig.i686 \
     freetype-2.8-12.el7_6.1.i686 \
-    ibgcc-4.8.5-36.el7_6.2.i686 \
-    gdk-pixbuf2-2.36.12-3.el7.i686 \ 
-    gtk2-2.24.31-1.el7.i686 \
-    libICE-1.0.9-9.el7.i686 \
-    pango-1.42.4-2.el7_6.i686 \
-    libpng12-1.2.50-10.el7.i686 \
+    ibgcc.i686 \
+    gdk-pixbuf2.i686 \ 
+    gtk2.i686 \
+    libICE.i686 \
+    pango.i686 \
+    libpng12.i686 \
     libSM-1.2.2-2.el7.i686 \
-    libstdc++-4.8.5-36.el7_6.2.i686 \
-    libX11-1.6.5-2.el7.i686 \
-    libXau-1.0.8-2.1.el7.i686 \
-    libXcursor-1.1.15-1.el7.i686 \
-    libXdmcp-1.1.2-6.el7.i686 \
-    libXext-1.3.3-3.el7.i686 \
-    libXfixes-5.0.3-1.el7.i686 \
-    libXinerama-1.1.3-2.1.el7.i686 \
-    libXi-1.7.9-1.el7.i686 \
-    libXmu-1.1.2-2.el7.i686 \
-    libXp-1.0.2-2.1.el7.i686 \
-    libXrandr-1.5.1-2.el7.i686 \
-    libXrender-0.9.10-1.el7.i686 \
-    libXt-1.1.5-3.el7.i686 \
+    libstdc++.i686 \
+    libX11.i686 \
+    libXau.i686 \
+    libXcursor.i686 \
+    libXdmcp.i686 \
+    libXext.i686 \
+    libXfixes.i686 \
+    libXinerama.i686 \
+    libXi.i686 \
+    libXmu.i686 \
+    libXp.i686 \
+    libXrandr.i686 \
+    libXrender.i686 \
+    libXt.i686 \
     zlib-1.2.7-18.el7.i686 \
     glib2.i686 \
     ksh.x86_64 \
@@ -56,8 +62,8 @@ RUN yum update -y && \
     libfreetype6 \
     libfontconfig1
 
-# Add overlay files to local fs (copied as context, but not mounted anywhere)
-COPY fs_overlay /
+# For mlocate
+RUN updatedb
 
 # Install Libero 11.9 and apply SP4
 RUN cd /tmp && wget "http://127.0.0.1:8765/Libero_SoC_v11.9_Linux.bin" && \
@@ -70,8 +76,38 @@ RUN cd /tmp && wget "http://127.0.0.1:8765/Libero_SoC_v11.9_Linux.bin" && \
     rm Libero_SoC_v11_9_SP4_Lin.tar.gz && \
     yes y | ./wsupdate.sh
 
+# Install paticular version of freetype, for ModelSim 10.x
+RUN yum-builddep -y freetype
+RUN yum install -y gcc make libtool glibc-devel.i686 libstdc++-devel.i686 glibc-headers.i686 gcc-c++ glibc-devel
+RUN cd /tmp && wget "http://127.0.0.1:8765/freetype-2.4.12.tar.gz" && \
+    tar -xf freetype-2.4.12.tar.gz && cd freetype-2.4.12 && \
+    ./configure --build=i686-pc-linux-gnu "CFLAGS=-m32" "CXXFLAGS=-m32" "LDFLAGS=-m32" && make && make install
+
+# Install python PIP for vUnit etc.
+RUN yum install -y epel-release
+RUN yum install -y python-pip
+RUN pip install --upgrade pip
+RUN pip install vunit_hdl
+
+# Add overlay files to local fs (copied as context, but not mounted anywhere)
+COPY fs_overlay /
+
+# Add udev rules for FlashPro hardware
+# FIXME: "locate: can not stat () `/var/lib/mlocate/mlocate.db': No such file or directory"
+# use fs_overlay for now.
+#RUN cd /usr/local/microsemi/Libero_SoC_v11.9/Libero/bin/ && bash ./udev_install
+
+# FIXME It would be nice to do this dynamically at runtime. If you don't add the user to the contailer, you get "invalid" user when starting the container.
+RUN useradd -u 287294 skeys
+
 # Fix misc ELF errors, by adding symlinks.
 RUN ln -f -s /lib/ld-linux.so.2 /lib/ld-lsb.so.3
 RUN ln -f -s /usr/lib64/libXm.so.4 /usr/lib/libXm.so.4
 RUN ln -f -s /usr/lib/libXm.so.4 /usr/lib/libXm.so.3
+
+#Fix: "su <username>" failed to execute /bin/bash: Permission denied
+RUN chmod 755 /usr
+RUN chmod 755 /
+RUN chmod 755 /usr/local/bin
+RUN chmod 755 /usr/local/bin/libero_env.sh
 
