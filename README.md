@@ -54,4 +54,10 @@ docker run --net=host -u skeys --volume="/etc/localtime:/etc/localtime" --volume
 ### Setting up a docker network.
 TODO: Add info here on how to setup a docker network to combile the usage of a local GUI, while specifiying the MAC address and hostname. --hostname=<hostname> --mac-address=<mac:address>
 
+### 'lmgrd' "file not found"
+cd /lib64
+ln -s ld-linux-x86-64.so.2 /lib/x86_64-linux-gnu/ld-2.29.so
+ln -s ld-lsb-x86-64.so.2 ld-linux-x86-64.so.2
+ln -s ld-lsb-x86-64.so.3 ld-linux-x86-64.so.2
+
 

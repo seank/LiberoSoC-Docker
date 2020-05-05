@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export LIBERO_INSTALLED_DIR=/usr/local/microsemi/Libero_SoC_v11.9/
+export LIBERO_INSTALLED_DIR=/usr/local/microsemi/Libero_SoC_v12.4/
 
 export LM_LICENSE_FILE=/license/License.dat
 export LM_LICENSE_FILE=1702@localhost:$LM_LICENSE_FILE

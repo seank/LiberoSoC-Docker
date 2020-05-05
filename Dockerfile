@@ -60,21 +60,24 @@ RUN yum update -y && \
     libxrender1 \
     libxrandr2 \
     libfreetype6 \
-    libfontconfig1
+    libfontconfig1 \
+    libxslt.i686 \
+    libxslt-devel \
+    pulseaudio.x86_64
 
 # For mlocate
 RUN updatedb
 
-# Install Libero 11.9 and apply SP4
-RUN cd /tmp && wget "http://127.0.0.1:8765/Libero_SoC_v11.9_Linux.bin" && \
-    chmod +x Libero_SoC_v11.9_Linux.bin && \
-    TERM=xterm ./Libero_SoC_v11.9_Linux.bin -i silent && \
-    rm Libero_SoC_v11.9_Linux.bin && \
-    cd /usr/local/microsemi/Libero_SoC_v11.9/Libero && \
-    wget "http://127.0.0.1:8765/Libero_SoC_v11_9_SP4_Lin.tar.gz" && \
-    tar -xf Libero_SoC_v11_9_SP4_Lin.tar.gz && \
-    rm Libero_SoC_v11_9_SP4_Lin.tar.gz && \
-    yes y | ./wsupdate.sh
+# Install Libero 12.4
+RUN cd /tmp && wget "http://127.0.0.1:8765/Libero_SoC_v12.4_lin.bin" && \
+    chmod +x Libero_SoC_v12.4_lin.bin && \
+    TERM=xterm ./Libero_SoC_v12.4_lin.bin -i silent && \
+    rm Libero_SoC_v12.4_lin.bin #&& \
+    #cd /usr/local/microsemi/Libero_SoC_v11.9/Libero && \
+    #wget "http://127.0.0.1:8765/Libero_SoC_v11_9_SP5_Lin.tar.gz" && \
+    #tar -xf Libero_SoC_v11_9_SP5_Lin.tar.gz && \
+    #rm Libero_SoC_v11_9_SP5_Lin.tar.gz && \
+    #yes y | ./wsupdate.sh
 
 # Install paticular version of freetype, for ModelSim 10.x
 RUN yum-builddep -y freetype
