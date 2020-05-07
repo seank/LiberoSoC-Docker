@@ -17,15 +17,9 @@ export LD_LIBRARY_PATH=/usr/local/lib:/usr/lib/i686:/usr/lib64:$LD_LIBRARY_PATH
 ldconfig /usr/local/lib
 
 # Clean license
-actel_wuclean -R
+#actel_wuclean -R
 
-# If workspace has been specified cd to it, so we know where we are running out of.
-if [ -d /workspace ]
-then
-  cd /workspace
-else
-  echo "WARNING: '/workspace' volume not mounted!, not executing ${CMD}."
-fi
-
+# Start Libero from home dir
+cd $HOME
 exec "$@"
 

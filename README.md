@@ -40,7 +40,8 @@ If you intend to use the FlahPro5 programmer, you need to run the container in '
 ### Using local display (interactive use)
 Example:
 ```shell
-docker run --net=host -u seank --env="DISPLAY" --privileged -v="/dev/bus/usb:/dev/bus/usb:rw" --volume="/etc/localtime:/etc/localtime" --volume="$HOME/.Xauthority:/root/.Xauthority:rw" --volume="$HOME/workspaceLibero/.actel:$HOME/.actel:rw" --volume="$HOME/workspaceLibero:/workspace:rw" -it docker/liberosoc /usr/local/bin/libero_env.sh libero
+export LIBERO_USER=skeys
+docker run --net=host -u $LIBERO_USER --env="DISPLAY" --privileged -v="/dev/bus/usb:/dev/bus/usb:rw" --volume="/etc/localtime:/etc/localtime" --volume="$HOME/.Xauthority:/root/.Xauthority:rw" --volume="$HOME/workspaceLibero/:/home/$LIBERO_USER:rw" -it docker/liberosoc /usr/local/bin/libero_env.sh libero libero
 ```
 
 ### Running LiberoSoC in headless mode (Jenkins etc)
@@ -48,7 +49,8 @@ Almost the same as using your local display, just add 'xvfb-run' before calling 
 
 Example:
 ```shell
-docker run --net=host -u skeys --volume="/etc/localtime:/etc/localtime" --volume="$HOME/workspaceLiberoSoC:/workspace:rw" -it docker/liberosoc /usr/local/bin/libero_env.sh xvfb-run libero
+export LIBERO_USER=skeys
+docker run --net=host -u $LIBERO_USER --volume="/etc/localtime:/etc/localtime" --volume="$HOME/workspaceLiberoSoC:/workspace:rw" -it docker/liberosoc /usr/local/bin/libero_env.sh xvfb-run libero
 ```
 
 ### Setting up a docker network.
